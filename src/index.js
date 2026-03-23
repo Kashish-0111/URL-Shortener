@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
+const urlRoutes = require("./routes/urlRoutes");
+const { redirectUrl } = require("./controllers/urlController");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,6 +12,10 @@ app.use(express.json());
 
 // Connect DB
 connectDB();
+
+// Routes
+app.use("/api", urlRoutes);          // /api/shorten, /api/stats/:shortCode
+app.get("/:shortCode", redirectUrl); // /ab3Kp → redirect
 
 // Test route
 app.get("/", (req, res) => {
