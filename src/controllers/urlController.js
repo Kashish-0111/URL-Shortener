@@ -3,13 +3,26 @@ const Url = require("../models/Url");
 
 // @POST /api/shorten
 const shortenUrl = async (req, res) => {
-    const { originalUrl } = req.body;
+    const { originalUrl,customAlias } = req.body;
 
     if (!originalUrl) {
         return res.status(400).json({ error: "URL is required" });
     }
 
     try {
+
+         if (customAlias) {
+            
+            const existing = await Url.findOne({ shortCode: customAlias });
+            if (existing) {
+                return res.status(400).json({ error: "Custom alias already taken!" });
+            }
+
+            
+            const url = new Url({ originalUrl, shortCode: customAlias });
+            await url.save();
+            return res.status(201).json(url);
+        }
         // Check karo already exist karta hai kya
         let url = await Url.findOne({ originalUrl });
         if (url) {
