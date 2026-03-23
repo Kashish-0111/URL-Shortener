@@ -53,6 +53,12 @@ const redirectUrl = async (req, res) => {
             return res.status(404).json({ error: "URL not found" });
         }
 
+        // Manual check - expire ho gayi hai kya
+        if (url.expireAt < new Date()) {
+            await Url.deleteOne({ shortCode });
+            return res.status(410).json({ error: "URL has expired!" });
+        }
+
         // Click count badhao
         url.clicks++;
         await url.save();
