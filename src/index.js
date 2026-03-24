@@ -3,12 +3,14 @@ const express = require("express");
 const connectDB = require("./config/db");
 const urlRoutes = require("./routes/urlRoutes");
 const { redirectUrl } = require("./controllers/urlController");
+const limiter = require("./config/rateLimiter");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(limiter);
 
 // Connect DB
 connectDB();
@@ -25,3 +27,4 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
+
