@@ -1,12 +1,22 @@
 const shortid = require("shortid");
 const Url = require("../models/Url");
-
+const validator= require("validator");
 // @POST /api/shorten
 const shortenUrl = async (req, res) => {
     const { originalUrl,customAlias } = req.body;
 
     if (!originalUrl) {
         return res.status(400).json({ error: "URL is required" });
+    }
+
+     // Validation check karo
+    if (!validator.isURL(originalUrl)) {
+        return res.status(400).json({ error: "Invalid URL! Please enter a valid URL." });
+    }
+
+    // Custom alias validation - sirf letters, numbers, hyphens allowed
+    if (customAlias && !/^[a-zA-Z0-9-_]+$/.test(customAlias)) {
+        return res.status(400).json({ error: "Custom alias can only contain letters, numbers, hyphens and underscores!" });
     }
 
     try {
