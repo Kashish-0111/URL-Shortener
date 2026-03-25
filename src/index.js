@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const urlRoutes = require("./routes/urlRoutes");
 const { redirectUrl } = require("./controllers/urlController");
 const limiter = require("./config/rateLimiter");
+const { connectRedis } = require("./config/redis");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,7 @@ app.use(limiter);
 
 // Connect DB
 connectDB();
+connectRedis();
 
 // Routes
 app.use("/api", urlRoutes);          // /api/shorten, /api/stats/:shortCode

@@ -1,6 +1,7 @@
 const shortid = require("shortid");
 const Url = require("../models/Url");
 const validator= require("validator");
+const { client } = require("../config/redis");
 // @POST /api/shorten
 const shortenUrl = async (req, res) => {
     const { originalUrl,customAlias } = req.body;
@@ -57,6 +58,12 @@ const redirectUrl = async (req, res) => {
     const { shortCode } = req.params;
 
     try {
+
+         const cachedUrl = await client.get(shortCode);
+        if (cachedUrl) {
+            console.log("Cache hit! ⚡");
+            return res.redirect(cachedUrl);
+        }
         const url = await Url.findOne({ shortCode });
 
         if (!url) {
@@ -68,6 +75,9 @@ const redirectUrl = async (req, res) => {
             await Url.deleteOne({ shortCode });
             return res.status(410).json({ error: "URL has expired!" });
         }
+
+         await client.setEx(shortCode, 3600, url.originalUrl);
+        console.log("Cache miss! Saved to Redis 💾");
 
         // Click count badhao
         url.clicks++;
